@@ -50,7 +50,7 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
             if ($neededRestartChildren) {
                 $forker->restart($count);
             } else {
-                $forker->run($count);
+                $forker->fork($count);
             }
         }
         if ($neededRestartChildren) {

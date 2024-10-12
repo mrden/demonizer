@@ -14,7 +14,7 @@ abstract class ChildProcess extends Process
     public function __construct(array $params = [], ?Parental $parentProcess = null)
     {
         $this->parentProcess = $parentProcess;
-        parent::____construct($params);
+        parent::__construct($params);
     }
 
     public function run(int $cloneNumber = 1): void

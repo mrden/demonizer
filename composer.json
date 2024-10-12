@@ -18,12 +18,6 @@
     "vimeo/psalm": "^4.30",
     "friendsofphp/php-cs-fixer": "3.4.0"
   },
-  "repositories":[
-    {
-      "type": "path",
-      "url": "../forker"
-    }
-  ],
   "authors": [
     {
       "name": "Denis Kiselev",
