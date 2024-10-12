@@ -1,0 +1,43 @@
+{
+  "name": "mrden/demonizer",
+  "description": "Process demonize",
+  "type": "library",
+  "version": "0.0.1",
+  "keywords": [
+    "demonize",
+    "demonizer",
+    "process"
+  ],
+  "license": "MIT",
+  "require": {
+    "php": "^7.3 || ^8.0",
+    "mrden/forker": "1.0.x-dev"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9",
+    "vimeo/psalm": "^4.30",
+    "friendsofphp/php-cs-fixer": "3.4.0"
+  },
+  "repositories":[
+    {
+      "type": "path",
+      "url": "../forker"
+    }
+  ],
+  "authors": [
+    {
+      "name": "Denis Kiselev",
+      "email": "kiselevden911@yandex.ru"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Mrden\\Demonizer\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests"
+    }
+  }
+}
