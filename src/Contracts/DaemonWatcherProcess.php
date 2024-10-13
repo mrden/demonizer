@@ -19,7 +19,7 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
 
     public function stop(?callable $afterStop = null): void
     {
-        parent::stop(function () use ($afterStop) {
+        parent::stop(static function () use ($afterStop) {
             foreach ($this->children() as $process) {
                 $processObject = $this->createProcess($process);
                 $forker = new Forker($processObject);
@@ -50,7 +50,7 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
             if ($neededRestartChildren) {
                 $forker->restart($count);
             } else {
-                $forker->fork($count);
+                $forker->run($count);
             }
         }
         if ($neededRestartChildren) {

@@ -112,8 +112,5 @@ will be stopped all (self and child process)
 * `kill PID` or `kill -15 PID` - will be stopped only daemon watcher, child process continue to work
 * `kill -10 PID` - will be stopped all (self and child process)
 
-### Restart only daemon watcher process vai `bin/forker`
+### Restart daemon watcher and all children processes vai `bin/forker`
 `php bin/forker --process="\Any\SingleDaemonWatcherProcess" --restart=1`
-
-### Restart with restart children processes vai `bin/forker`
-`php bin/forker --process="\Any\SingleDaemonWatcherProcess" --restart=1 --process-restartChildren=1`
