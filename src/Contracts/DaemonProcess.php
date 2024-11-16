@@ -30,5 +30,10 @@ abstract class DaemonProcess extends ChildProcess
         }
     }
 
+    protected function updateTitle(string $message): void
+    {
+        \cli_set_process_title(\sprintf('%s %s', $this->title(), $message));
+    }
+
     abstract protected function job(): void;
 }

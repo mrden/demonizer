@@ -19,7 +19,7 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
 
     public function stop(?callable $afterStop = null): void
     {
-        parent::stop(static function () use ($afterStop) {
+        parent::stop(function () use ($afterStop) {
             foreach ($this->children() as $process) {
                 $processObject = $this->createProcess($process);
                 $forker = new Forker($processObject);
@@ -43,14 +43,18 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
     protected function job(): void
     {
         $neededRestartChildren = $this->params['restartChildren'] ?? false;
+        $runningChildrenCount = 0;
         foreach ($this->children() as $process) {
             $processObject = $this->createProcess($process);
             $forker = new Forker($processObject);
             $count = $process['count'] ?? 1;
             if ($neededRestartChildren) {
+                // todo: при таком рестарте ребенка, ребенок теряет связь с родителем
                 $forker->restart($count);
             } else {
                 $forker->run($count);
+                $runningChildrenCount++;
+                $this->updateTitle(' (' . $runningChildrenCount . ' children)');
             }
         }
         if ($neededRestartChildren) {

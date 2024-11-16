@@ -1,6 +1,7 @@
 <?php
 
 use Tests\TestDaemonProcess;
+use Tests\TestDaemonProcess1;
 
 return [
     [
@@ -9,7 +10,7 @@ return [
         'count' => 2,
     ],
     [
-        'process' => TestDaemonProcess::class,
+        'process' => TestDaemonProcess1::class,
         'params' => ['test-param' => 8],
         'count' => 1,
     ],

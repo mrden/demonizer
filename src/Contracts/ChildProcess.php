@@ -9,29 +9,29 @@ abstract class ChildProcess extends Process
     /**
      * @var Parental|Process|null
      */
-    private $parentProcess;
+    private $parent;
 
     public function __construct(array $params = [], ?Parental $parentProcess = null)
     {
-        $this->parentProcess = $parentProcess;
+        $this->parent = $parentProcess;
         parent::__construct($params);
     }
 
     public function run(int $cloneNumber = 1): void
     {
-        if ($this->parentProcess) {
-            $this->parentProcess->setIsChildContext(true);
+        if ($this->parent) {
+            $this->parent->setIsChildContext(true);
         }
         parent::run($cloneNumber);
     }
 
-    protected function title(): string
+    protected function title(): ?string
     {
-        $title = \get_class($this) . ($this->params ? ' ' . $this->paramToString() : '');
-        if ($this->parentProcess) {
-            $parentPid = $this->parentProcess->pid();
+        $title = parent::title();
+        if ($this->parent) {
+            $parentPid = $this->parent->pid();
             if ($parentPid) {
-                $title = "$parentPid => $title";
+                $title = \sprintf('%s => %s', $parentPid, $title);
             }
         }
         return $title;
