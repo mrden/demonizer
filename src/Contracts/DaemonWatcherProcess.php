@@ -2,6 +2,7 @@
 
 namespace Mrden\Demonizer\Contracts;
 
+use Mrden\Demonizer\Exceptions\DemonizeException;
 use Mrden\Forker\Contracts\Process;
 use Mrden\Forker\Exceptions\ForkException;
 use Mrden\Forker\Forker;
@@ -9,8 +10,6 @@ use Mrden\Forker\Forker;
 abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
 {
     private $isChildContext = false;
-
-    protected $excludeParamsKey = ['restartChildren'];
 
     final public function maxCloneCount(): int
     {
@@ -31,35 +30,21 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
         });
     }
 
-    protected function terminate(): void
-    {
-        $this->isExecute = false;
-        parent::stop();
-    }
-
     /**
+     * @throws DemonizeException
      * @throws ForkException
      */
     protected function job(): void
     {
-        $neededRestartChildren = $this->params['restartChildren'] ?? false;
         $runningChildrenCount = 0;
         foreach ($this->children() as $process) {
             $processObject = $this->createProcess($process);
             $forker = new Forker($processObject);
             $count = $process['count'] ?? 1;
-            if ($neededRestartChildren) {
-                // todo: при таком рестарте ребенка, ребенок теряет связь с родителем
-                $forker->restart($count);
-            } else {
-                $forker->run($count);
-                $runningChildrenCount++;
-                $this->updateTitle(' (' . $runningChildrenCount . ' children)');
-            }
+            $forker->run($count);
+            $runningChildrenCount++;
         }
-        if ($neededRestartChildren) {
-            unset($this->params['restartChildren']);
-        }
+        $this->updateTitle(' (' . $runningChildrenCount . ' children)');
     }
 
     protected function checkParams(): void
@@ -68,18 +53,18 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
 
     /**
      * @psalm-param array{process:class-string<Process>, params?:array} $process
-     * @throws ForkException
+     * @throws DemonizeException
      */
     private function createProcess(array $process): Process
     {
         if (!isset($process['process'])) {
-            throw new ForkException('Incorrect process config');
+            throw new DemonizeException('Incorrect process config');
         }
         if (!\class_exists($process['process'])) {
-            throw new ForkException('Not found process ' . $process['process']);
+            throw new DemonizeException('Not found process ' . $process['process']);
         }
         if (!\is_subclass_of($process['process'], Process::class)) {
-            throw new ForkException('Incorrect implementation child process ' . $process['process']);
+            throw new DemonizeException('Incorrect implementation child process ' . $process['process']);
         }
         return new $process['process']($process['params'] ?? [], $this);
     }
@@ -92,9 +77,6 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
     public function shutdownHandler(int $number): void
     {
         if (!$this->isChildContext) {
-            if ($this->needRestart) {
-                $this->params['restartChildren'] = true;
-            }
             parent::shutdownHandler($number);
         }
     }

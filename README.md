@@ -109,8 +109,7 @@ $forker->run();
 will be stopped all (self and child process)
 
 ### Stop via `kill`
-* `kill PID` or `kill -15 PID` - will be stopped only daemon watcher, child process continue to work
-* `kill -10 PID` - will be stopped all (self and child process)
+`kill PID` - will be stopped all (self and child process)
 
 ### Restart daemon watcher and all children processes vai `bin/forker`
 `php bin/forker --process="\Any\SingleDaemonWatcherProcess" --restart=1`

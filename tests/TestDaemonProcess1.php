@@ -13,7 +13,7 @@ class TestDaemonProcess1 extends DaemonProcess
      */
     protected $maxCloneCount = 15;
 
-    protected $nameProcess = 'Тестовый процесс нахер';
+    protected $nameProcess = 'Тестовый процесс';
 
     protected function job(): void
     {
@@ -25,8 +25,7 @@ class TestDaemonProcess1 extends DaemonProcess
      */
     protected function checkParams(): void
     {
-        $params = $this->getParams();
-        if (!isset($params)) {
+        if (!isset($this->params)) {
             throw new \Exception('Param "test-param" required');
         }
     }

@@ -23,8 +23,7 @@ class TestDaemonProcess extends DaemonProcess
      */
     protected function checkParams(): void
     {
-        $params = $this->getParams();
-        if (!isset($params)) {
+        if (!isset($this->params)) {
             throw new \Exception('Param "test-param" required');
         }
     }
