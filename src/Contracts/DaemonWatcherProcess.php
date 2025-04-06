@@ -3,13 +3,13 @@
 namespace Mrden\Demonizer\Contracts;
 
 use Mrden\Demonizer\Exceptions\DemonizeException;
-use Mrden\Forker\Contracts\Process;
+use Mrden\Forker\Contracts\Titled;
 use Mrden\Forker\Exceptions\ForkException;
 use Mrden\Forker\Forker;
 
-abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
+abstract class DaemonWatcherProcess extends MainDaemonProcess implements Parental, Titled
 {
-    private $isChildContext = false;
+    private bool $isChildContext = false;
 
     final public function maxCloneCount(): int
     {
@@ -36,15 +36,22 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
      */
     protected function job(): void
     {
-        $runningChildrenCount = 0;
         foreach ($this->children() as $process) {
             $processObject = $this->createProcess($process);
             $forker = new Forker($processObject);
             $count = $process['count'] ?? 1;
             $forker->run($count);
-            $runningChildrenCount++;
         }
-        $this->updateTitle(' (' . $runningChildrenCount . ' children)');
+    }
+
+    public function getTitle(): string
+    {
+        $childrenCount = \count($this->children());
+        return \sprintf(
+            '%s %s',
+            ($this->nameProcess ?? \get_class($this)) . $this->paramsToString(),
+            ' (' . $childrenCount . ' children)'
+        );
     }
 
     protected function checkParams(): void
@@ -52,10 +59,10 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
     }
 
     /**
-     * @psalm-param array{process:class-string<Process>, params?:array} $process
+     * @psalm-param array{process:class-string<ChildProcess>, params?:array, count?: int} $process
      * @throws DemonizeException
      */
-    private function createProcess(array $process): Process
+    private function createProcess(array $process): ChildProcess
     {
         if (!isset($process['process'])) {
             throw new DemonizeException('Incorrect process config');
@@ -63,10 +70,10 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
         if (!\class_exists($process['process'])) {
             throw new DemonizeException('Not found process ' . $process['process']);
         }
-        if (!\is_subclass_of($process['process'], Process::class)) {
+        if (!\is_subclass_of($process['process'], ChildProcess::class)) {
             throw new DemonizeException('Incorrect implementation child process ' . $process['process']);
         }
-        return new $process['process']($process['params'] ?? [], $this);
+        return new $process['process']($this, $process['params'] ?? []);
     }
 
     public function setIsChildContext(bool $isChildContext): void

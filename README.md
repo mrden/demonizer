@@ -9,7 +9,7 @@
 ```php
 namespace Any;
 
-class SingleDaemonProcess extends \Mrden\Demonizer\Contracts\DaemonProcess
+class SingleDaemonProcess extends \Mrden\Demonizer\Contracts\MainDaemonProcess
 {
     use \Mrden\Forker\Traits\ProcessFileStorageTrait;
     

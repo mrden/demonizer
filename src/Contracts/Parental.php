@@ -2,14 +2,12 @@
 
 namespace Mrden\Demonizer\Contracts;
 
-use Mrden\Forker\Contracts\Process;
-
 interface Parental
 {
     public function setIsChildContext(bool $isChildContext): void;
 
     /**
-     * @psalm-return list<array{process:class-string<Process>, params?:array, count?: int}>
+     * @psalm-return list<array{process:class-string<ChildProcess>, params?:array, count?: int}>
      */
     public function children(): array;
 }

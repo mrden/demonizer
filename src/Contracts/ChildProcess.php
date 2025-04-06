@@ -3,15 +3,16 @@
 namespace Mrden\Demonizer\Contracts;
 
 use Mrden\Forker\Contracts\Process;
+use Mrden\Forker\Contracts\Titled;
 
-abstract class ChildProcess extends Process
+/**
+ * @psalm-consistent-constructor
+ */
+abstract class ChildProcess extends Process implements Titled
 {
-    /**
-     * @var Parental|Process|null
-     */
-    private $parent;
+    private Parental&Process $parent;
 
-    public function __construct(array $params = [], ?Parental $parentProcess = null)
+    public function __construct(Parental&Process $parentProcess, array $params = [])
     {
         $this->parent = $parentProcess;
         parent::__construct($params);
@@ -19,21 +20,17 @@ abstract class ChildProcess extends Process
 
     public function run(int $cloneNumber = 1): void
     {
-        if ($this->parent) {
-            $this->parent->setIsChildContext(true);
-        }
+        $this->parent->setIsChildContext(true);
         parent::run($cloneNumber);
     }
 
-    protected function title(): ?string
+    public function getTitle(): string
     {
-        $title = parent::title();
-        if ($this->parent) {
-            $parentPid = $this->parent->pid();
-            if ($parentPid) {
-                $title = \sprintf('%s => %s', $parentPid, $title);
-            }
+        $title = ($this->nameProcess ?? \get_class($this)) . $this->paramsToString();
+        $parentPid = $this->parent->pid();
+        if ($parentPid === null) {
+            return $title;
         }
-        return $title;
+        return \sprintf('%s => %s', $parentPid, $title);
     }
 }
