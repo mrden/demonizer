@@ -11,7 +11,7 @@ namespace Any;
 
 class SingleDaemonProcess extends \Mrden\Demonizer\Contracts\MainDaemonProcess
 {
-    use \Mrden\Forker\Traits\ProcessFileStorageTrait;
+    use \Mrden\Forker\Traits\FilePidStorageTrait;
     
     /**
      * in sec
@@ -64,6 +64,47 @@ $forker->run(3);
 
 ```php
 namespace Any;
+
+class SingleProcess extends \Mrden\Demonizer\Contracts\ChildProcess
+{
+    use \Mrden\Forker\Traits\FilePidStorageTrait;
+
+    public function execute(): void
+    {
+        echo 'context from parent process ' . ($this->params['context'] ?? '');
+    }
+
+    protected function prepare(): void
+    {
+    }
+    
+    protected function checkParams(): void
+    {
+    }
+}
+
+class SingleDaemonProcess extends \Mrden\Demonizer\Contracts\ChildDaemonProcess
+{
+    use \Mrden\Forker\Traits\FilePidStorageTrait;
+    
+    /**
+     * in sec
+     */
+    protected $period = 5;
+    
+    protected function job(): void
+    {
+        echo 'I\'m the code of iteration daemon process';
+    }
+    
+    protected function checkParams(): void
+    {
+    }
+
+    protected function prepare(): void
+    {
+    }
+}
 
 class SingleDaemonWatcherProcess extends \Mrden\Demonizer\Contracts\DaemonWatcherProcess
 {
