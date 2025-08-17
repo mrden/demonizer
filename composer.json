@@ -1,8 +1,7 @@
 {
   "name": "mrden/demonizer",
-  "description": "Process demonize",
+  "description": "Process demonizer",
   "type": "library",
-  "version": "0.0.1",
   "keywords": [
     "demonize",
     "demonizer",
@@ -10,13 +9,13 @@
   ],
   "license": "MIT",
   "require": {
-    "php": "^7.3 || ^8.0",
-    "mrden/forker": "^1.0"
+    "php": "^8.2",
+    "mrden/forker": "2.0.x-dev"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9",
-    "vimeo/psalm": "^4.30",
-    "friendsofphp/php-cs-fixer": "3.4.0"
+    "phpunit/phpunit": "^11",
+    "vimeo/psalm": "^6",
+    "friendsofphp/php-cs-fixer": "^3"
   },
   "authors": [
     {
@@ -33,5 +32,22 @@
     "psr-4": {
       "Tests\\": "tests"
     }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "fixcs": "php-cs-fixer fix --diff",
+    "fixcs:changed": "php-cs-fixer fix --diff --config=.php-cs-fixer.dist.php $(git diff --name-only --diff-filter=ACM HEAD | grep '\\.php$' | paste -sd ' ' -)",
+    "fixcs:staged": "php-cs-fixer fix --diff --config=.php-cs-fixer.dist.php $(git diff --cached --name-only --diff-filter=ACM | grep '\\.php$' | paste -sd ' ' -)",
+    "psalm": "psalm --show-info=true --no-diff --no-cache --error-level=INFO_LEVEL",
+    "test": "phpunit",
+    "test:unit": "phpunit",
+    "test:integration": "phpunit --configuration phpunit.integration.xml",
+    "test:stress": "phpunit --group stress",
+    "test:all": [
+      "@test:unit",
+      "@test:integration"
+    ]
   }
 }

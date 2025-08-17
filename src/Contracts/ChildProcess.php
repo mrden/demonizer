@@ -3,37 +3,37 @@
 namespace Mrden\Demonizer\Contracts;
 
 use Mrden\Forker\Contracts\Process;
+use Mrden\Forker\Contracts\ProcessManagerInterface;
+use Mrden\Forker\Contracts\Titled;
 
-abstract class ChildProcess extends Process
+abstract class ChildProcess extends Process implements Titled
 {
     /**
-     * @var Parental|Process|null
+     * @var int|null
      */
-    private $parent;
+    private int|null $parentPid;
 
-    public function __construct(array $params = [], ?Parental $parentProcess = null)
-    {
-        $this->parent = $parentProcess;
-        parent::__construct($params);
+    public function __construct(
+        array $params = [],
+        ?ProcessManagerInterface $processManager = null,
+        ?string $pidStorageClassName = null,
+        ?int $parentPid = null
+    ) {
+        $this->parentPid = $parentPid;
+        parent::__construct($params, $processManager, $pidStorageClassName);
     }
 
-    public function run(int $cloneNumber = 1): void
+    public function getTitle(): string
     {
-        if ($this->parent) {
-            $this->parent->setIsChildContext(true);
-        }
-        parent::run($cloneNumber);
-    }
-
-    protected function title(): ?string
-    {
-        $title = parent::title();
-        if ($this->parent) {
-            $parentPid = $this->parent->pid();
-            if ($parentPid) {
-                $title = \sprintf('%s => %s', $parentPid, $title);
-            }
+        $title = $this->getDefaultTitle();
+        if ($this->parentPid) {
+            $title = \sprintf('%s => %s', $this->parentPid, $title);
         }
         return $title;
+    }
+
+    public function getParentPid(): ?int
+    {
+        return $this->parentPid;
     }
 }

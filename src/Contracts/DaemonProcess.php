@@ -4,35 +4,42 @@ namespace Mrden\Demonizer\Contracts;
 
 abstract class DaemonProcess extends ChildProcess
 {
-    protected $period = 0.2;
-    protected $isExecute = true;
-    protected $memoryLimit;
+    protected float $period = 0.2;
+    protected int $memoryLimit = -1;
+    private bool $isExecute = true;
 
-    public function stop(?callable $afterStop = null): void
+    protected function initGracefulShutdown(): void
     {
         $this->isExecute = false;
-        parent::stop($afterStop);
     }
 
     public function execute(): void
     {
         while ($this->isExecute) {
+            $this->getProcessManager()->dispatchSignals();
             // Restore pid in storage every iteration
-            $pid = $this->pid($this->getRunningCloneNumber());
+            $pid = $this->getPidStorage()->get($this->getRunningCloneNumber());
             if (!$pid) {
-                $this->pidStorage()->save($this->getRunningCloneNumber(), \getmypid());
+                $this->getPidStorage()->save($this->getRunningCloneNumber(), $this->getProcessManager()->getCurrentPid());
             }
+
             $this->job();
-            \usleep($this->period * 1000000);
-            if ($this->memoryLimit && \memory_get_usage() > $this->memoryLimit) {
-                $this->restart();
+
+            if ($this->memoryLimit > 0 && \memory_get_usage() > $this->memoryLimit) {
+                if ($this->getParentPid()) {
+                    $this->initGracefulShutdown();
+                } else {
+                    $this->initRestartMySelf();
+                }
             }
+
+            \usleep($this->period * 1000000);
         }
     }
 
     protected function updateTitle(string $message): void
     {
-        \cli_set_process_title(\sprintf('%s %s', $this->title(), $message));
+        \cli_set_process_title(\sprintf('%s %s', $this->getTitle(), $message));
     }
 
     abstract protected function job(): void;

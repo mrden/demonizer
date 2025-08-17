@@ -11,7 +11,7 @@ namespace Any;
 
 class SingleDaemonProcess extends \Mrden\Demonizer\Contracts\DaemonProcess
 {
-    use \Mrden\Forker\Traits\ProcessFileStorageTrait;
+    use \Mrden\Forker\Traits\SimpleProcessTrait;
     
     /**
      * in sec
@@ -21,14 +21,6 @@ class SingleDaemonProcess extends \Mrden\Demonizer\Contracts\DaemonProcess
     protected function job(): void
     {
         echo 'I\'m the code of iteration daemon process';
-    }
-    
-    protected function checkParams(): void
-    {
-    }
-
-    protected function prepare(): void
-    {
     }
 }
 ```
@@ -67,9 +59,9 @@ namespace Any;
 
 class SingleDaemonWatcherProcess extends \Mrden\Demonizer\Contracts\DaemonWatcherProcess
 {
-    use \Mrden\Forker\Traits\ProcessFileStorageTrait;
+    use \Mrden\Forker\Traits\SimpleProcessTrait;
     
-    protected function processes(): array
+    protected function children(): array
     {
         return return [
             [
@@ -84,10 +76,6 @@ class SingleDaemonWatcherProcess extends \Mrden\Demonizer\Contracts\DaemonWatche
                 'count' => 2,
             ],
         ];
-    }
-
-    protected function prepare(): void
-    {
     }
 }
 ```
