@@ -23,7 +23,7 @@ abstract class ChildProcess extends Process implements Titled
         parent::__construct($params, $processManager, $pidStorageClassName);
     }
 
-    protected function title(): ?string
+    public function getTitle(): string
     {
         $title = $this->getDefaultTitle();
         if ($this->parentPid) {
