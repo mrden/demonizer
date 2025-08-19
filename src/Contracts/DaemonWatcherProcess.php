@@ -14,6 +14,8 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
      */
     private array $childForkers = [];
 
+    private int $runningChildrenCount = 0;
+
     final public function maxCloneCount(): int
     {
         return 1;
@@ -37,15 +39,26 @@ abstract class DaemonWatcherProcess extends DaemonProcess implements Parental
      */
     protected function job(): void
     {
-        $runningChildrenCount = 0;
+        $this->runningChildrenCount = 0;
         foreach ($this->children() as $process) {
             $processObject = $this->createProcess($process);
             $this->childForkers[$processObject->id()] = new Forker($processObject);
             $count = $process['count'] ?? 1;
             $this->childForkers[$processObject->id()]->run($count);
-            $runningChildrenCount++;
+            $this->runningChildrenCount++;
         }
-        $this->updateTitle(' (' . $runningChildrenCount . ' children)');
+    }
+
+    protected function updateTitle(): void
+    {
+        $usedMemoryBytes = \memory_get_usage(true);
+        $usedMemoryMb = \round($usedMemoryBytes / 1024 / 1024, 2);
+        \cli_set_process_title(\sprintf(
+            '%s [children %d, memory %sMb]',
+            $this->getTitle(),
+            $usedMemoryMb,
+            $this->runningChildrenCount
+        ));
     }
 
     /**

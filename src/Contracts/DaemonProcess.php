@@ -17,6 +17,7 @@ abstract class DaemonProcess extends ChildProcess
     {
         while ($this->isExecute) {
             $this->getProcessManager()->dispatchSignals();
+            $this->updateTitle();
             // Restore pid in storage every iteration
             $pid = $this->getPidStorage()->get($this->getRunningCloneNumber());
             if (!$pid) {
@@ -37,9 +38,11 @@ abstract class DaemonProcess extends ChildProcess
         }
     }
 
-    protected function updateTitle(string $message): void
+    protected function updateTitle(): void
     {
-        \cli_set_process_title(\sprintf('%s %s', $this->getTitle(), $message));
+        $usedMemoryBytes = \memory_get_usage(true);
+        $usedMemoryMb = \round($usedMemoryBytes / 1024 / 1024, 2);
+        \cli_set_process_title(\sprintf('%s [mem %sMb]', $this->getTitle(), $usedMemoryMb));
     }
 
     abstract protected function job(): void;
